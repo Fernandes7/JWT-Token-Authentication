@@ -1,6 +1,7 @@
 const router=require("express").Router()
 const jwt=require("jsonwebtoken")
 const UserTable=require("../Models/User")
+const bcrpyt=require("bcryptjs")
 
 
 router.post("/signup",async(req,res)=>{
@@ -9,7 +10,10 @@ router.post("/signup",async(req,res)=>{
    res.send("Already Have Account")
    else
    {
-   const newuserdata=new UserTable(req.body)
+   const salt=await bcrpyt.genSalt()
+   const hashedpassword=await bcrpyt.hash(req.body.userpassword,salt)
+   console.log(hashedpassword)
+   const newuserdata=new UserTable({userpassword:hashedpassword,useremail:req.body.useremail,username:req.body.username})
    const saveddata= await newuserdata.save()
    if(saveddata)
    res.send(saveddata)
@@ -22,10 +26,11 @@ router.post("/login",async(req,res)=>{
     const isExist=await UserTable.findOne({useremail:req.body.useremail})
     if(isExist)
     {
-        if(isExist.userpassword===req.body.userpassword)
+        const ispasswordcorrect= await bcrpyt.compare(req.body.userpassword,isExist.userpassword)
+        if(ispasswordcorrect)
         res.send(isExist)
         else
-        res.send("Incorrect Password")
+        res.send("Incorrect Password,",)
     }
     else
     res.send("Not Exist")
