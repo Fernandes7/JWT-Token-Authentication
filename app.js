@@ -14,7 +14,7 @@ app.use("/",QuestionRouter)
 app.use("/",UserRouter)
 
 
-mongoose.connect("mongodb+srv://Ferno:123@cluster0.wqriud4.mongodb.net/QuestionDatabse").then(()=>console.log("Connected to Database"))
+mongoose.connect("mongodb+srv://Ferno:123@cluster0.wqriud4.mongodb.net/Amalcp").then(()=>console.log("Connected to Database"))
 app.listen(port,(req,res)=>{
     console.log("Server Started Success fully")
 })

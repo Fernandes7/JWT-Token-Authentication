@@ -28,13 +28,44 @@ router.post("/login",async(req,res)=>{
     {
         const ispasswordcorrect= await bcrpyt.compare(req.body.userpassword,isExist.userpassword)
         if(ispasswordcorrect)
-        res.send(isExist)
+        {
+            const user={name:isExist}
+            const accesstoken=generateAccessToken(user)
+            const refreshToken=jwt.sign(user,"mysecreatkey")
+            res.send({accesstoken:accesstoken,RefreshToken:refreshToken})
+        }
         else
         res.send("Incorrect Password,",)
     }
     else
     res.send("Not Exist")
 })
+
+router.get("/profile",authenticate,(req,res)=>{
+    res.send({Tokendata:req.user})
+})
+
+
+
+
+
+
+function generateAccessToken(user)
+{
+ return jwt.sign(user,"mysecreatkey",{expiresIn:"30s"})   
+}
+
+function authenticate(req,res,next)
+{
+const authHeader=req.headers["authorization"]
+const token=authHeader && authHeader.split(' ')[1]
+if(token==null) return res.sendStatus(401)
+jwt.verify(token,"mysecreatkey",(err,user)=>{
+    if(err) return res.send(403)
+    req.user=user
+    next()
+})
+}
 
 
 module.exports=router
